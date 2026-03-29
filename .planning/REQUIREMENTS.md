@@ -53,23 +53,23 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ING-01 | Phase 1 | Pending |
-| ING-02 | Phase 1 | Pending |
-| ING-03 | Phase 1 | Pending |
-| ING-04 | Phase 1 | Pending |
-| ING-05 | Phase 1 | Pending |
-| BCN-01 | Phase 2 | Pending |
-| BCN-02 | Phase 2 | Pending |
-| BCN-03 | Phase 2 | Pending |
-| BCN-04 | Phase 2 | Pending |
-| BCN-05 | Phase 2 | Pending |
-| UX-01 | Phase 3 | Pending |
-| UX-02 | Phase 3 | Pending |
-| UX-03 | Phase 3 | Pending |
-| UX-04 | Phase 3 | Pending |
-| UX-05 | Phase 3 | Pending |
+| ING-01 | Phase 2 | Pending |
+| ING-02 | Phase 3 | Pending |
+| ING-03 | Phase 3 | Pending |
+| ING-04 | Phase 3 | Pending |
+| ING-05 | Phase 2 | Pending |
+| BCN-01 | Phase 5 | Pending |
+| BCN-02 | Phase 5 | Pending |
+| BCN-03 | Phase 6 | Pending |
+| BCN-04 | Phase 4 | Pending |
+| BCN-05 | Phase 4 | Pending |
+| UX-01 | Phase 7 | Pending |
+| UX-02 | Phase 8 | Pending |
+| UX-03 | Phase 7 | Pending |
+| UX-04 | Phase 10 | Pending |
+| UX-05 | Phase 10 | Pending |
 | COM-01 | Phase 1 | Pending |
-| COM-02 | Phase 1 | Pending |
+| COM-02 | Phase 9 | Pending |
 | COM-03 | Phase 1 | Pending |
 
 ---
