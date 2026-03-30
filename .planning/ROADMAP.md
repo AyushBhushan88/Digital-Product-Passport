@@ -22,7 +22,11 @@
 **Success Criteria**:
   1. System validates incoming battery data against Feb 2025 carbon declaration standards.
   2. Data schemas are strictly validated using JSON-LD for regulatory compliance.
-**Plans**: TBD
+**Plans**: 4 plans
+- [ ] 01-01-PLAN.md — Foundation & Battery Data Models
+- [ ] 01-02-PLAN.md — Validation Engine
+- [ ] 01-03-PLAN.md — Carbon Calculation Engine
+- [ ] 01-04-PLAN.md — API & Verification
 
 ### Phase 2: High-Scale Ingestion Engine
 **Goal**: Enable brands to push massive volumes of supplier data asynchronously.
@@ -113,7 +117,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Battery Regulation Foundation | 0/1 | Not started | - |
+| 1. Battery Regulation Foundation | 0/4 | Not started | - |
 | 2. High-Scale Ingestion Engine | 0/1 | Not started | - |
 | 3. Enterprise Integration Suite | 0/1 | Not started | - |
 | 4. Immutable Audit Trail & Privacy Vault | 0/1 | Not started | - |
