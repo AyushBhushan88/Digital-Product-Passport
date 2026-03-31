@@ -4,6 +4,7 @@ import { IngestionController } from './ingestion.controller';
 import { IngestionService } from './ingestion.service';
 import { IngestionProcessor } from './processors/ingestion.processor';
 import { PrismaModule } from '../../prisma/prisma.module';
+import { ComplianceModule } from '../compliance/compliance.module';
 import { BulkIngestionController } from './bulk-ingestion.controller';
 import { BulkIngestionService } from './bulk-ingestion.service';
 import { ConnectorRegistry } from './connectors/connector.registry';
@@ -13,6 +14,7 @@ import { CentricPlmConnector } from './connectors/centric-plm.connector';
 @Module({
   imports: [
     PrismaModule,
+    ComplianceModule,
     BullModule.registerQueue({
       name: 'ingestion',
     }),

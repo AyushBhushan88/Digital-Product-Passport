@@ -6,6 +6,8 @@ import { ConnectorRegistry } from '../connectors/connector.registry';
 import { CryptoService } from '../../crypto/crypto.service';
 import { BlockchainService } from '../../blockchain/blockchain.service';
 import { Gs1Service } from '../../gs1/gs1.service';
+import { ValidationEngine } from '../../compliance/engines/validation.engine';
+import { Category } from '../../battery/battery.types';
 
 @Processor('ingestion')
 export class IngestionProcessor extends WorkerHost {
@@ -17,6 +19,7 @@ export class IngestionProcessor extends WorkerHost {
     private cryptoService: CryptoService,
     private blockchainService: BlockchainService,
     private gs1Service: Gs1Service,
+    private validationEngine: ValidationEngine,
   ) {
     super();
   }
@@ -41,7 +44,19 @@ export class IngestionProcessor extends WorkerHost {
         }
       }
 
-      // 2. Cryptographic Hashing (D-13)
+      // 2. Sector Mapping & Validation
+      const sector = (payload.sector as Category) || Category.BATTERY;
+      this.logger.log(`Validating data for sector: ${sector}`);
+
+      const validationResult = this.validationEngine.validate(payload, sector);
+      if (!validationResult.success) {
+        const errorMsg = `Validation failed for ${sector}: ${JSON.stringify(validationResult.errors)}`;
+        this.logger.error(errorMsg);
+        throw new Error(errorMsg);
+      }
+      this.logger.log(`Validation successful for ${sector}`);
+
+      // 3. Cryptographic Hashing (D-13)
       const payloadHash = this.cryptoService.hashPayload(payload);
       this.logger.log(`Generated payload fingerprint: ${payloadHash.substring(0, 16)}...`);
 
@@ -72,28 +87,7 @@ export class IngestionProcessor extends WorkerHost {
       const digitalLink = this.gs1Service.generateDigitalLink(gtin, serial);
       this.logger.log(`Assigned GS1 Digital Link: ${digitalLink}`);
 
-      // Simulate heavy processing (D-07 Raw Event storage and sector mapping)
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      // 6. Sector Mapping Simulation
-      const sector = payload.sector || 'BATTERY';
-      this.logger.log(`Mapping data for sector: ${sector}`);
-
-      switch (sector) {
-        case 'FASHION':
-          this.logger.log(`Processing Fashion Tier mapping for job ${id} (ID: ${payload.externalId})`);
-          break;
-        case 'ELECTRONICS':
-          this.logger.log(`Processing Electronics BOM mapping for job ${id} (ID: ${payload.externalId})`);
-          break;
-        case 'BATTERY':
-          this.logger.log(`Processing Battery Regulation mapping for job ${id} (ID: ${payload.externalId})`);
-          break;
-        default:
-          this.logger.warn(`Unknown sector ${sector}, using generic mapping`);
-      }
-
-      // 7. Update RawEvent to PROCESSED
+      // 6. Update RawEvent to PROCESSED
       if (rawEventId) {
         await this.prisma.rawEvent.update({
           where: { id: rawEventId },

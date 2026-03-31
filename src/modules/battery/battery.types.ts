@@ -1,3 +1,9 @@
+export enum Category {
+  BATTERY = 'BATTERY',
+  FASHION = 'FASHION',
+  ELECTRONICS = 'ELECTRONICS',
+}
+
 export enum BatteryMaterial {
   COBALT = 'cobalt',
   LITHIUM = 'lithium',

@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { PrismaService } from '../../prisma/prisma.service';
+import { Category } from '../battery/battery.types';
 
 @Injectable()
 export class IngestionService {
@@ -18,8 +19,8 @@ export class IngestionService {
       throw new Error('Invalid supplier data payload');
     }
 
-    // Determine sector (simple logic for now)
-    const sector = data.sector || 'BATTERY';
+    // Determine sector using Category enum
+    const sector = (data.sector as Category) || Category.BATTERY;
 
     // 1. Create PENDING RawEvent
     const rawEvent = await this.prisma.rawEvent.create({

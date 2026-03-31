@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Category } from '../../battery/battery.types';
 
 export interface ValidationError {
   field: string;
@@ -19,22 +20,26 @@ export interface ValidationResult {
 @Injectable()
 export class ValidationEngine {
   /**
-   * Validates battery passport data according to D-01 layered approach.
-   * Layer 1 (Critical): Mandatory for Feb 2025 compliance.
-   * Layer 2 (Review): Recommended but not immediately blocking.
-   * Layer 3 (Format): Basic JSON-LD structure check.
+   * Validates passport data according to the category.
    */
-  validate(data: any): ValidationResult {
+  validate(data: any, category: Category = Category.BATTERY): ValidationResult {
+    switch (category) {
+      case Category.FASHION:
+        return this.validateFashion(data);
+      case Category.ELECTRONICS:
+        return this.validateElectronics(data);
+      case Category.BATTERY:
+      default:
+        return this.validateBattery(data);
+    }
+  }
+
+  private validateBattery(data: any): ValidationResult {
     const errors: ValidationError[] = [];
     const warnings: ValidationWarning[] = [];
 
     // Layer 3: Format & JSON-LD Basic Check
-    if (!data['@context']) {
-      errors.push({ field: '@context', message: 'Missing JSON-LD @context' });
-    }
-    if (!data['@type']) {
-      errors.push({ field: '@type', message: 'Missing JSON-LD @type' });
-    }
+    this.checkJsonLd(data, errors);
 
     // Layer 1: Critical Regulatory Fields (Feb 2025)
     const criticalFields = ['manufacturer', 'serialNumber', 'chemistry'];
@@ -67,10 +72,63 @@ export class ValidationEngine {
       });
     }
 
-    return {
-      success: errors.length === 0,
-      errors,
-      warnings,
-    };
+    return { success: errors.length === 0, errors, warnings };
+  }
+
+  private validateFashion(data: any): ValidationResult {
+    const errors: ValidationError[] = [];
+    const warnings: ValidationWarning[] = [];
+
+    this.checkJsonLd(data, errors);
+
+    const criticalFields = [
+      'manufacturer',
+      'serialNumber',
+      'materialOrigin',
+      'weavingOrigin',
+      'dyeingOrigin',
+      'assemblyOrigin',
+    ];
+    for (const field of criticalFields) {
+      if (!data[field]) {
+        errors.push({ field, message: `Fashion critical field '${field}' is missing` });
+      }
+    }
+
+    if (!data.composition) {
+      errors.push({ field: 'composition', message: 'Material composition is required for fashion' });
+    }
+
+    return { success: errors.length === 0, errors, warnings };
+  }
+
+  private validateElectronics(data: any): ValidationResult {
+    const errors: ValidationError[] = [];
+    const warnings: ValidationWarning[] = [];
+
+    this.checkJsonLd(data, errors);
+
+    const criticalFields = ['manufacturer', 'serialNumber', 'modelNumber', 'bom'];
+    for (const field of criticalFields) {
+      if (!data[field]) {
+        errors.push({ field, message: `Electronics critical field '${field}' is missing` });
+      }
+    }
+
+    if (!data.substanceCompliance) {
+      errors.push({ field: 'substanceCompliance', message: 'RoHS/REACH compliance data is required' });
+    }
+
+    return { success: errors.length === 0, errors, warnings };
+  }
+
+  private checkJsonLd(data: any, errors: ValidationError[]) {
+    if (!data['@context']) {
+      errors.push({ field: '@context', message: 'Missing JSON-LD @context' });
+    }
+    if (!data['@type']) {
+      errors.push({ field: '@type', message: 'Missing JSON-LD @type' });
+    }
   }
 }
+
