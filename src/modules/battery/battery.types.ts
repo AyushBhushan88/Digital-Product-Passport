@@ -34,6 +34,7 @@ export interface BatteryPassport {
   };
   productionDate: Date;
   model: string;
+  chemistry: string; // e.g., 'LFP', 'NCM'
   capacityAh: number;
   voltageV: number;
   carbonFootprint: CarbonFootprint;
