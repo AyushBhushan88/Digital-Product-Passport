@@ -2,6 +2,7 @@ import { Controller, Get, Param, BadRequestException } from '@nestjs/common';
 import { ProvenanceService } from './provenance.service';
 import { BlockchainService } from '../blockchain/blockchain.service';
 import { PrismaService } from '../../prisma/prisma.service';
+import { ScorecardService } from './scorecard.service';
 
 @Controller('p/01')
 export class PassportController {
@@ -9,6 +10,7 @@ export class PassportController {
     private provenanceService: ProvenanceService,
     private blockchainService: BlockchainService,
     private prisma: PrismaService,
+    private scorecardService: ScorecardService,
   ) {}
 
   @Get(':gtin/21/:serial')
@@ -33,14 +35,17 @@ export class PassportController {
     // 2. Fetch the provenance timeline
     const timeline = await this.provenanceService.getTimeline(gtin, serial);
 
-    // 3. Verify on-chain status if Tx exists
+    // 3. Calculate sustainability scorecard (UX-02, D-28)
+    const scorecard = this.scorecardService.calculateScore(payload, timeline);
+
+    // 4. Verify on-chain status if Tx exists
     const onChainStatus = payload.onChainTx ? {
       verified: true,
       txHash: payload.onChainTx,
       explorerUrl: `https://mumbai.polygonscan.com/tx/${payload.onChainTx}`, // Example L2 explorer
     } : { verified: false };
 
-    // 4. Aggregate and return for PWA
+    // 5. Aggregate and return for PWA
     return {
       product: {
         gtin,
@@ -50,6 +55,7 @@ export class PassportController {
         sector: latestEvent.sector,
       },
       onChainStatus,
+      scorecard,
       provenance: timeline,
       gs1DigitalLink: `https://id.looppass.io/01/${gtin}/21/${serial}`,
     };
