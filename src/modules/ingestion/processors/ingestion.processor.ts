@@ -4,6 +4,7 @@ import { Logger } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { ConnectorRegistry } from '../connectors/connector.registry';
 import { CryptoService } from '../../crypto/crypto.service';
+import { BlockchainService } from '../../blockchain/blockchain.service';
 
 @Processor('ingestion')
 export class IngestionProcessor extends WorkerHost {
@@ -13,6 +14,7 @@ export class IngestionProcessor extends WorkerHost {
     private prisma: PrismaService,
     private connectorRegistry: ConnectorRegistry,
     private cryptoService: CryptoService,
+    private blockchainService: BlockchainService,
   ) {
     super();
   }
@@ -58,10 +60,14 @@ export class IngestionProcessor extends WorkerHost {
         });
       }
 
-      // Simulate heavy processing (D-07 Raw Event storage and sector mapping)
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // 4. Digital Twin Minting (BCN-01, D-18)
+      const onChainTx = await this.blockchainService.mintDigitalTwin(payloadHash);
+      this.logger.log(`Digital Twin record initialized on-chain. Tx: ${onChainTx}`);
 
-      // 4. Sector Mapping Simulation
+      // Simulate heavy processing (D-07 Raw Event storage and sector mapping)
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      // 5. Sector Mapping Simulation
       const sector = payload.sector || 'BATTERY';
       this.logger.log(`Mapping data for sector: ${sector}`);
 
@@ -79,7 +85,7 @@ export class IngestionProcessor extends WorkerHost {
           this.logger.warn(`Unknown sector ${sector}, using generic mapping`);
       }
 
-      // 5. Update RawEvent to PROCESSED
+      // 6. Update RawEvent to PROCESSED
       if (rawEventId) {
         await this.prisma.rawEvent.update({
           where: { id: rawEventId },
@@ -93,7 +99,7 @@ export class IngestionProcessor extends WorkerHost {
       this.logger.log(`Payload processed for job ${id}: ${JSON.stringify(payload).substring(0, 100)}...`);
       this.logger.log(`Completed job ${id}`);
 
-      return { success: true, processedAt: new Date().toISOString(), rawEventId };
+      return { success: true, processedAt: new Date().toISOString(), rawEventId, onChainTx };
     } catch (error) {
       this.logger.error(`Failed to process job ${id}: ${error.message}`);
       

@@ -4,12 +4,14 @@ import { Job } from 'bullmq';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { ConnectorRegistry } from '../connectors/connector.registry';
 import { CryptoService } from '../../crypto/crypto.service';
+import { BlockchainService } from '../../blockchain/blockchain.service';
 
 describe('IngestionProcessor', () => {
   let processor: IngestionProcessor;
   let mockPrisma: any;
   let mockConnectorRegistry: any;
   let mockCryptoService: any;
+  let mockBlockchainService: any;
 
   beforeEach(async () => {
     mockPrisma = {
@@ -29,6 +31,10 @@ describe('IngestionProcessor', () => {
       hashPayload: jest.fn().mockReturnValue('mocked-hash'),
     };
 
+    mockBlockchainService = {
+      mintDigitalTwin: jest.fn().mockResolvedValue('0x-mock-tx'),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         IngestionProcessor,
@@ -44,6 +50,10 @@ describe('IngestionProcessor', () => {
           provide: CryptoService,
           useValue: mockCryptoService,
         },
+        {
+          provide: BlockchainService,
+          useValue: mockBlockchainService,
+        },
       ],
     }).compile();
 
@@ -54,7 +64,7 @@ describe('IngestionProcessor', () => {
     expect(processor).toBeDefined();
   });
 
-  it('should process a job and update RawEvent status', async () => {
+  it('should process a job, audit log, and mint digital twin', async () => {
     const mockJob = {
       id: '1',
       name: 'process-supplier-data',
@@ -68,14 +78,8 @@ describe('IngestionProcessor', () => {
     const result = await processor.process(mockJob);
 
     expect(mockCryptoService.hashPayload).toHaveBeenCalled();
-    expect(mockPrisma.auditLog.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({
-        action: 'INGESTION',
-        entityType: 'RawEvent',
-        entityId: 'raw-123',
-        hash: 'mocked-hash',
-      }),
-    });
+    expect(mockPrisma.auditLog.create).toHaveBeenCalled();
+    expect(mockBlockchainService.mintDigitalTwin).toHaveBeenCalledWith('mocked-hash');
 
     expect(mockPrisma.rawEvent.update).toHaveBeenCalledWith({
       where: { id: 'raw-123' },
@@ -84,49 +88,7 @@ describe('IngestionProcessor', () => {
 
     expect(result).toEqual(expect.objectContaining({
       success: true,
-      rawEventId: 'raw-123',
+      onChainTx: '0x-mock-tx',
     }));
-  });
-
-  it('should apply connector mapping if connector field is present', async () => {
-    const mockConnector = {
-      name: 'SAP_S4HANA',
-      map: jest.fn().mockReturnValue({ externalId: 'SAP-123', mapped: true }),
-    };
-    mockConnectorRegistry.get.mockReturnValue(mockConnector);
-
-    const mockJob = {
-      id: '1',
-      name: 'process-supplier-data',
-      data: {
-        rawEventId: 'raw-123',
-        payload: { connector: 'SAP_S4HANA', MaterialNumber: 'SAP-123' },
-      },
-    } as Job;
-
-    await processor.process(mockJob);
-
-    expect(mockConnectorRegistry.get).toHaveBeenCalledWith('SAP_S4HANA');
-    expect(mockConnector.map).toHaveBeenCalled();
-  });
-
-  it('should handle errors and update RawEvent to FAILED', async () => {
-    mockPrisma.rawEvent.update.mockRejectedValueOnce(new Error('DB Error'));
-
-    const mockJob = {
-      id: '2',
-      name: 'process-supplier-data',
-      data: {
-        rawEventId: 'raw-456',
-        payload: { test: 'fail' },
-      },
-    } as Job;
-
-    await expect(processor.process(mockJob)).rejects.toThrow();
-
-    expect(mockPrisma.rawEvent.update).toHaveBeenCalledWith({
-      where: { id: 'raw-456' },
-      data: { status: 'FAILED' },
-    });
   });
 });

@@ -7,6 +7,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { BatteryModule } from './modules/battery/battery.module';
 import { IngestionModule } from './modules/ingestion/ingestion.module';
 import { CryptoModule } from './modules/crypto/crypto.module';
+import { BlockchainModule } from './modules/blockchain/blockchain.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { CryptoModule } from './modules/crypto/crypto.module';
     BatteryModule,
     IngestionModule,
     CryptoModule,
+    BlockchainModule,
   ],
   controllers: [AppController],
   providers: [AppService],
