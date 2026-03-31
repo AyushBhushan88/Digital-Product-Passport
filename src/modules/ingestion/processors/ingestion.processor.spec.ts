@@ -6,6 +6,7 @@ import { ConnectorRegistry } from '../connectors/connector.registry';
 import { CryptoService } from '../../crypto/crypto.service';
 import { BlockchainService } from '../../blockchain/blockchain.service';
 import { Gs1Service } from '../../gs1/gs1.service';
+import { ValidationEngine } from '../../compliance/engines/validation.engine';
 
 describe('IngestionProcessor', () => {
   let processor: IngestionProcessor;
@@ -14,6 +15,7 @@ describe('IngestionProcessor', () => {
   let mockCryptoService: any;
   let mockBlockchainService: any;
   let mockGs1Service: any;
+  let mockValidationEngine: any;
 
   beforeEach(async () => {
     mockPrisma = {
@@ -41,6 +43,10 @@ describe('IngestionProcessor', () => {
       generateDigitalLink: jest.fn().mockReturnValue('https://id.looppass.io/01/123/21/456'),
     };
 
+    mockValidationEngine = {
+      validate: jest.fn().mockReturnValue({ success: true, errors: [], warnings: [] }),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         IngestionProcessor,
@@ -63,6 +69,10 @@ describe('IngestionProcessor', () => {
         {
           provide: Gs1Service,
           useValue: mockGs1Service,
+        },
+        {
+          provide: ValidationEngine,
+          useValue: mockValidationEngine,
         },
       ],
     }).compile();
@@ -87,6 +97,7 @@ describe('IngestionProcessor', () => {
 
     const result = await processor.process(mockJob);
 
+    expect(mockValidationEngine.validate).toHaveBeenCalled();
     expect(mockCryptoService.hashPayload).toHaveBeenCalled();
     expect(mockPrisma.auditLog.create).toHaveBeenCalled();
     expect(mockBlockchainService.mintDigitalTwin).toHaveBeenCalled();

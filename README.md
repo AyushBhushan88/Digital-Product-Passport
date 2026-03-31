@@ -1,98 +1,64 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# LoopPass: EU Digital Product Passport (DPP) Compliance SaaS
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+LoopPass is a high-scale Compliance SaaS designed to help brands meet the EU Ecodesign for Sustainable Products Regulation (ESPR). It enables the creation of item-level Digital Twins with immutable provenance and sustainability metrics.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Core Features
 
-## Description
+- **Multi-Sector Support**: Specialized schemas for Batteries (Feb 2025 Regulation), Fashion (Tier 1-4 traceability), and Electronics (BOM-level compliance).
+- **High-Scale Ingestion**: Asynchronous processing engine powered by BullMQ and Redis, capable of handling massive supplier data bursts.
+- **Immutable Audit Trail**: Cryptographic fingerprinting of all data changes, recorded in a private vault with on-chain anchoring.
+- **GS1 Interoperability**: Automatic generation of GS1 Digital Link-compliant URIs and a public resolver for global product identity.
+- **Consumer Transparency**: Mobile-responsive Passport view with a Provenance Timeline and Sustainability Scorecard (A-F grading).
+- **Circularity & Recycling**: Dedicated Recycler Portal for accessing disassembly guides and marking products as "RECYCLED" on-chain.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Technical Stack
 
-## Project setup
+- **Framework**: NestJS (TypeScript)
+- **Database**: PostgreSQL with Prisma ORM
+- **Queue**: BullMQ (Redis)
+- **Blockchain**: Simulated L2 (Polygon/Base) for Digital Twin minting and lifecycle updates.
+- **Standards**: JSON-LD, GS1 Digital Link.
 
+## Development Roadmap (v1 Prototype)
+
+All 10 phases of the initial roadmap have been successfully implemented:
+
+1.  ✅ **Phase 1**: Battery Regulation Foundation & Core Data Models.
+2.  ✅ **Phase 2**: High-Scale Async Ingestion Engine.
+3.  ✅ **Phase 3**: Enterprise Integration Suite (SAP/PLM connectors).
+4.  ✅ **Phase 4**: Immutable Audit Trail & Private Data Vault.
+5.  ✅ **Phase 5**: Digital Twin Minting (L2 Simulation).
+6.  ✅ **Phase 6**: GS1 Product Identity & Digital Link Resolution.
+7.  ✅ **Phase 7**: Consumer Scanning & Provenance Timeline.
+8.  ✅ **Phase 8**: Sustainability Scorecard (Carbon/Material grading).
+9.  ✅ **Phase 9**: Sector Extension: Fashion & Electronics.
+10. ✅ **Phase 10**: Circularity & Recycler Portal.
+
+## Getting Started
+
+### Prerequisites
+- Node.js (v18+)
+- Redis (for BullMQ)
+- PostgreSQL (for Prisma)
+
+### Installation
 ```bash
 $ npm install
 ```
 
-## Compile and run the project
-
+### Running the App
 ```bash
 # development
 $ npm run start
 
 # watch mode
 $ npm run start:dev
-
-# production mode
-$ npm run start:prod
 ```
 
-## Run tests
-
+### Running Tests
 ```bash
-# unit tests
 $ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
 ```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
 
 ## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+MIT
