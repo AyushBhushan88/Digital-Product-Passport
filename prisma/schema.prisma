@@ -21,3 +21,17 @@ model BatteryPassport {
   @@index([externalId])
   @@index([manufacturerId])
 }
+
+model RawEvent {
+  id        String   @id @default(uuid()) @db.Uuid
+  type      String   // e.g., 'SUPPLIER_DATA'
+  sector    String   // e.g., 'FASHION', 'ELECTRONICS', 'BATTERY'
+  payload   Json
+  status    String   // 'PENDING', 'PROCESSED', 'FAILED'
+  jobId     String?  // BullMQ Job ID
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([jobId])
+}
