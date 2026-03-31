@@ -5,6 +5,7 @@ import { PrismaService } from '../../../prisma/prisma.service';
 import { ConnectorRegistry } from '../connectors/connector.registry';
 import { CryptoService } from '../../crypto/crypto.service';
 import { BlockchainService } from '../../blockchain/blockchain.service';
+import { Gs1Service } from '../../gs1/gs1.service';
 
 @Processor('ingestion')
 export class IngestionProcessor extends WorkerHost {
@@ -15,6 +16,7 @@ export class IngestionProcessor extends WorkerHost {
     private connectorRegistry: ConnectorRegistry,
     private cryptoService: CryptoService,
     private blockchainService: BlockchainService,
+    private gs1Service: Gs1Service,
   ) {
     super();
   }
@@ -64,10 +66,16 @@ export class IngestionProcessor extends WorkerHost {
       const onChainTx = await this.blockchainService.mintDigitalTwin(payloadHash);
       this.logger.log(`Digital Twin record initialized on-chain. Tx: ${onChainTx}`);
 
+      // 5. GS1 Digital Link Generation (BCN-03, D-21)
+      const gtin = payload.gtin || '01234567890123'; 
+      const serial = payload.serial || (id ? id.toString() : 'SN-UNKNOWN');
+      const digitalLink = this.gs1Service.generateDigitalLink(gtin, serial);
+      this.logger.log(`Assigned GS1 Digital Link: ${digitalLink}`);
+
       // Simulate heavy processing (D-07 Raw Event storage and sector mapping)
       await new Promise((resolve) => setTimeout(resolve, 500));
 
-      // 5. Sector Mapping Simulation
+      // 6. Sector Mapping Simulation
       const sector = payload.sector || 'BATTERY';
       this.logger.log(`Mapping data for sector: ${sector}`);
 
@@ -85,13 +93,17 @@ export class IngestionProcessor extends WorkerHost {
           this.logger.warn(`Unknown sector ${sector}, using generic mapping`);
       }
 
-      // 6. Update RawEvent to PROCESSED
+      // 7. Update RawEvent to PROCESSED
       if (rawEventId) {
         await this.prisma.rawEvent.update({
           where: { id: rawEventId },
           data: { 
             status: 'PROCESSED',
-            payload: payload, // Update with transformed payload
+            payload: {
+              ...payload,
+              onChainTx,
+              digitalLink,
+            },
           },
         });
       }
@@ -99,7 +111,7 @@ export class IngestionProcessor extends WorkerHost {
       this.logger.log(`Payload processed for job ${id}: ${JSON.stringify(payload).substring(0, 100)}...`);
       this.logger.log(`Completed job ${id}`);
 
-      return { success: true, processedAt: new Date().toISOString(), rawEventId, onChainTx };
+      return { success: true, processedAt: new Date().toISOString(), rawEventId, onChainTx, digitalLink };
     } catch (error) {
       this.logger.error(`Failed to process job ${id}: ${error.message}`);
       

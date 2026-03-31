@@ -5,6 +5,7 @@ import { PrismaService } from '../../../prisma/prisma.service';
 import { ConnectorRegistry } from '../connectors/connector.registry';
 import { CryptoService } from '../../crypto/crypto.service';
 import { BlockchainService } from '../../blockchain/blockchain.service';
+import { Gs1Service } from '../../gs1/gs1.service';
 
 describe('IngestionProcessor', () => {
   let processor: IngestionProcessor;
@@ -12,6 +13,7 @@ describe('IngestionProcessor', () => {
   let mockConnectorRegistry: any;
   let mockCryptoService: any;
   let mockBlockchainService: any;
+  let mockGs1Service: any;
 
   beforeEach(async () => {
     mockPrisma = {
@@ -35,6 +37,10 @@ describe('IngestionProcessor', () => {
       mintDigitalTwin: jest.fn().mockResolvedValue('0x-mock-tx'),
     };
 
+    mockGs1Service = {
+      generateDigitalLink: jest.fn().mockReturnValue('https://id.looppass.io/01/123/21/456'),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         IngestionProcessor,
@@ -54,6 +60,10 @@ describe('IngestionProcessor', () => {
           provide: BlockchainService,
           useValue: mockBlockchainService,
         },
+        {
+          provide: Gs1Service,
+          useValue: mockGs1Service,
+        },
       ],
     }).compile();
 
@@ -64,13 +74,13 @@ describe('IngestionProcessor', () => {
     expect(processor).toBeDefined();
   });
 
-  it('should process a job, audit log, and mint digital twin', async () => {
+  it('should process a job, audit log, mint, and assign GS1 identity', async () => {
     const mockJob = {
       id: '1',
       name: 'process-supplier-data',
       data: {
         rawEventId: 'raw-123',
-        payload: { sector: 'FASHION', test: 'data' },
+        payload: { sector: 'FASHION', test: 'data', gtin: '12345678901234', serial: 'SN-999' },
         timestamp: new Date().toISOString(),
       },
     } as Job;
@@ -79,7 +89,8 @@ describe('IngestionProcessor', () => {
 
     expect(mockCryptoService.hashPayload).toHaveBeenCalled();
     expect(mockPrisma.auditLog.create).toHaveBeenCalled();
-    expect(mockBlockchainService.mintDigitalTwin).toHaveBeenCalledWith('mocked-hash');
+    expect(mockBlockchainService.mintDigitalTwin).toHaveBeenCalled();
+    expect(mockGs1Service.generateDigitalLink).toHaveBeenCalledWith('12345678901234', 'SN-999');
 
     expect(mockPrisma.rawEvent.update).toHaveBeenCalledWith({
       where: { id: 'raw-123' },
@@ -89,6 +100,7 @@ describe('IngestionProcessor', () => {
     expect(result).toEqual(expect.objectContaining({
       success: true,
       onChainTx: '0x-mock-tx',
+      digitalLink: 'https://id.looppass.io/01/123/21/456',
     }));
   });
 });

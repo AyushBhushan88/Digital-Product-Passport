@@ -8,6 +8,7 @@ import { BatteryModule } from './modules/battery/battery.module';
 import { IngestionModule } from './modules/ingestion/ingestion.module';
 import { CryptoModule } from './modules/crypto/crypto.module';
 import { BlockchainModule } from './modules/blockchain/blockchain.module';
+import { Gs1Module } from './modules/gs1/gs1.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { BlockchainModule } from './modules/blockchain/blockchain.module';
     IngestionModule,
     CryptoModule,
     BlockchainModule,
+    Gs1Module,
   ],
   controllers: [AppController],
   providers: [AppService],
