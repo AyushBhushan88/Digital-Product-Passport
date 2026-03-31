@@ -53,6 +53,7 @@ export class PassportController {
         brand: payload.brand || 'Unknown',
         model: payload.model || 'Standard Product',
         sector: latestEvent.sector,
+        lifecycleStatus: payload.lifecycleStatus || 'ACTIVE',
       },
       onChainStatus,
       scorecard,

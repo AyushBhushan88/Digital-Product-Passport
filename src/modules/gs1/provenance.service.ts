@@ -42,13 +42,23 @@ export class ProvenanceService {
       });
 
       for (const log of auditLogs) {
-        timeline.push({
-          type: 'AUDIT',
-          title: 'Cryptographic Fingerprint Generated',
-          description: `Immutable hash recorded: ${log.hash.substring(0, 12)}...`,
-          timestamp: log.createdAt,
-          actor: log.actor,
-        });
+        if (log.action === 'MARK_RECYCLED') {
+          timeline.push({
+            type: 'LIFECYCLE',
+            title: 'Product Recycled',
+            description: `Digital Twin status updated to RECYCLED by authorized portal. Tx: ${(log.metadata as any).txHash?.substring(0, 10)}...`,
+            timestamp: log.createdAt,
+            actor: log.actor,
+          });
+        } else {
+          timeline.push({
+            type: 'AUDIT',
+            title: 'Cryptographic Fingerprint Generated',
+            description: `Immutable hash recorded: ${log.hash.substring(0, 12)}...`,
+            timestamp: log.createdAt,
+            actor: log.actor,
+          });
+        }
       }
     }
 

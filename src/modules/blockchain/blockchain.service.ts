@@ -18,6 +18,18 @@ export class BlockchainService {
     return txHash;
   }
 
+  async updateTwinStatus(tokenId: string, newStatus: string): Promise<string> {
+    this.logger.log(`Updating Digital Twin ${tokenId} status to: ${newStatus}`);
+
+    // Simulate L2 transaction delay
+    await new Promise((resolve) => setTimeout(resolve, 800));
+
+    const txHash = '0x' + crypto.randomBytes(32).toString('hex');
+    this.logger.log(`Status updated successfully. TxHash: ${txHash}`);
+
+    return txHash;
+  }
+
   async verifyOnChain(tokenId: string, expectedHash: string): Promise<boolean> {
     this.logger.log(`Verifying on-chain data for Token: ${tokenId}`);
     

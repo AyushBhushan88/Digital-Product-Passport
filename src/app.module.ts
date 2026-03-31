@@ -9,6 +9,7 @@ import { IngestionModule } from './modules/ingestion/ingestion.module';
 import { CryptoModule } from './modules/crypto/crypto.module';
 import { BlockchainModule } from './modules/blockchain/blockchain.module';
 import { Gs1Module } from './modules/gs1/gs1.module';
+import { RecyclerModule } from './modules/recycler/recycler.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { Gs1Module } from './modules/gs1/gs1.module';
     CryptoModule,
     BlockchainModule,
     Gs1Module,
+    RecyclerModule,
   ],
   controllers: [AppController],
   providers: [AppService],
