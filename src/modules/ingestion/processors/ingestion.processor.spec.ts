@@ -3,21 +3,30 @@ import { IngestionProcessor } from './ingestion.processor';
 import { Job } from 'bullmq';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { ConnectorRegistry } from '../connectors/connector.registry';
+import { CryptoService } from '../../crypto/crypto.service';
 
 describe('IngestionProcessor', () => {
   let processor: IngestionProcessor;
   let mockPrisma: any;
   let mockConnectorRegistry: any;
+  let mockCryptoService: any;
 
   beforeEach(async () => {
     mockPrisma = {
       rawEvent: {
         update: jest.fn().mockResolvedValue({ id: 'raw-123', status: 'PROCESSED' }),
       },
+      auditLog: {
+        create: jest.fn().mockResolvedValue({ id: 'audit-123' }),
+      },
     };
 
     mockConnectorRegistry = {
       get: jest.fn().mockReturnValue(null),
+    };
+
+    mockCryptoService = {
+      hashPayload: jest.fn().mockReturnValue('mocked-hash'),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -30,6 +39,10 @@ describe('IngestionProcessor', () => {
         {
           provide: ConnectorRegistry,
           useValue: mockConnectorRegistry,
+        },
+        {
+          provide: CryptoService,
+          useValue: mockCryptoService,
         },
       ],
     }).compile();
@@ -53,6 +66,16 @@ describe('IngestionProcessor', () => {
     } as Job;
 
     const result = await processor.process(mockJob);
+
+    expect(mockCryptoService.hashPayload).toHaveBeenCalled();
+    expect(mockPrisma.auditLog.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        action: 'INGESTION',
+        entityType: 'RawEvent',
+        entityId: 'raw-123',
+        hash: 'mocked-hash',
+      }),
+    });
 
     expect(mockPrisma.rawEvent.update).toHaveBeenCalledWith({
       where: { id: 'raw-123' },

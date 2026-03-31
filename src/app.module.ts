@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { BatteryModule } from './modules/battery/battery.module';
 import { IngestionModule } from './modules/ingestion/ingestion.module';
+import { CryptoModule } from './modules/crypto/crypto.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { IngestionModule } from './modules/ingestion/ingestion.module';
     PrismaModule,
     BatteryModule,
     IngestionModule,
+    CryptoModule,
   ],
   controllers: [AppController],
   providers: [AppService],

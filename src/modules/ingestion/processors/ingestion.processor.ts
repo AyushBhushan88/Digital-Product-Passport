@@ -3,6 +3,7 @@ import { Job } from 'bullmq';
 import { Logger } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { ConnectorRegistry } from '../connectors/connector.registry';
+import { CryptoService } from '../../crypto/crypto.service';
 
 @Processor('ingestion')
 export class IngestionProcessor extends WorkerHost {
@@ -11,6 +12,7 @@ export class IngestionProcessor extends WorkerHost {
   constructor(
     private prisma: PrismaService,
     private connectorRegistry: ConnectorRegistry,
+    private cryptoService: CryptoService,
   ) {
     super();
   }
@@ -35,10 +37,31 @@ export class IngestionProcessor extends WorkerHost {
         }
       }
 
+      // 2. Cryptographic Hashing (D-13)
+      const payloadHash = this.cryptoService.hashPayload(payload);
+      this.logger.log(`Generated payload fingerprint: ${payloadHash.substring(0, 16)}...`);
+
+      // 3. Create Audit Log (D-14)
+      if (rawEventId) {
+        await this.prisma.auditLog.create({
+          data: {
+            action: 'INGESTION',
+            entityType: 'RawEvent',
+            entityId: rawEventId,
+            actor: 'SYSTEM',
+            hash: payloadHash,
+            metadata: {
+              jobId: id,
+              connector: connectorName,
+            },
+          },
+        });
+      }
+
       // Simulate heavy processing (D-07 Raw Event storage and sector mapping)
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // 2. Sector Mapping Simulation
+      // 4. Sector Mapping Simulation
       const sector = payload.sector || 'BATTERY';
       this.logger.log(`Mapping data for sector: ${sector}`);
 
@@ -56,7 +79,7 @@ export class IngestionProcessor extends WorkerHost {
           this.logger.warn(`Unknown sector ${sector}, using generic mapping`);
       }
 
-      // 3. Update RawEvent to PROCESSED
+      // 5. Update RawEvent to PROCESSED
       if (rawEventId) {
         await this.prisma.rawEvent.update({
           where: { id: rawEventId },
