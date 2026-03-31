@@ -1,0 +1,11 @@
+# NestJS
+node_modules/
+dist/
+*.log
+
+# Prisma
+/generated/prisma
+.env
+
+# OS
+.DS_Store

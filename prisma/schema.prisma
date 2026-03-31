@@ -1,0 +1,23 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model BatteryPassport {
+  id               String   @id @default(uuid()) @db.Uuid
+  externalId       String   @unique
+  manufacturerId   String
+  productionDate   DateTime
+  model            String
+  carbonFootprint  Decimal  @db.Decimal(10, 2)
+  metadata         Json     @default("{}")
+  contentHash      String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([externalId])
+  @@index([manufacturerId])
+}

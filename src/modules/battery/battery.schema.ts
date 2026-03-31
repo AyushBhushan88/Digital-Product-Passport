@@ -1,0 +1,27 @@
+export const BATTERY_PASSPORT_CONTEXT = {
+  '@context': [
+    'https://schema.org',
+    {
+      'lp': 'https://looppass.com/ontology/',
+      'carbonFootprint': 'lp:carbonFootprint',
+      'materialComposition': 'lp:materialComposition',
+      'stateOfHealth': 'lp:stateOfHealth',
+      'serialNumber': 'schema:serialNumber',
+      'manufacturer': 'schema:manufacturer',
+      'productionDate': 'schema:productionDate',
+      'model': 'schema:model',
+      'batchID': 'lp:batchID',
+      'externalId': 'lp:externalId',
+      'capacityAh': 'lp:capacityAh',
+      'voltageV': 'lp:voltageV',
+      'totalCO2e': 'lp:totalCO2e',
+      'carbonIntensity': 'lp:carbonIntensity',
+      'referencePeriod': 'lp:referencePeriod',
+      'material': 'lp:material',
+      'weight': 'schema:weight',
+      'percentage': 'lp:percentage',
+      'currentSoH': 'lp:currentSoH',
+    },
+  ],
+  '@type': 'lp:BatteryPassport',
+};
