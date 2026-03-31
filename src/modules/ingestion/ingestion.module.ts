@@ -4,6 +4,8 @@ import { IngestionController } from './ingestion.controller';
 import { IngestionService } from './ingestion.service';
 import { IngestionProcessor } from './processors/ingestion.processor';
 import { PrismaModule } from '../../prisma/prisma.module';
+import { BulkIngestionController } from './bulk-ingestion.controller';
+import { BulkIngestionService } from './bulk-ingestion.service';
 
 @Module({
   imports: [
@@ -12,7 +14,7 @@ import { PrismaModule } from '../../prisma/prisma.module';
       name: 'ingestion',
     }),
   ],
-  controllers: [IngestionController],
-  providers: [IngestionService, IngestionProcessor],
+  controllers: [IngestionController, BulkIngestionController],
+  providers: [IngestionService, IngestionProcessor, BulkIngestionService],
 })
 export class IngestionModule {}
